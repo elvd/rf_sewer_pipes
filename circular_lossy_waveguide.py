@@ -1,4 +1,4 @@
-"""Lossy circular waveguide approximation of buried sewer pipes
+"""Electrically large lossy circular waveguide
 
 This suite of functions implements the approximate solutions for a lossy,
 air-filled circular waveguide embedded in a homogeneous medium. This solution
@@ -11,7 +11,6 @@ Hollow metallic and dielectric waveguides for long distance optical
 transmission and lasers,
 The Bell System Technical Journal, vol. 43, no. 4, pp. 1783–1809, Jul. 1964,
 doi: 10.1002/j.1538-7305.1964.tb04108.x.
-
 """
 
 import warnings
@@ -30,16 +29,17 @@ def check_electrical_size(freq: float, wvg_diameter: float,
     """Electrical size check for circular waveguide
 
     Uses the formula in Marcatilli and Schmeltzer's 1964 paper to determine
-    if a given sewer pipe is electrically large at a given frequency and
-    waveguide propagation mode combination.
+    if a given circular waveguide is electrically large at a given frequency
+    and waveguide propagation mode combination. This is also dependent on the
+    complex relative permittivity of the surrounding medium.
 
     Args:
         freq: A `float` with the frequency at which to perform the check.
               Units are GHz.
-        wvg_diameter: A `float` with the dimension of the waveguide which
+        wvg_diameter: A `float` with the diameter of the waveguide which
                       is being checked. Units are metres.
         permittivity: A `complex` value of the relative permittivity of
-                      the material surrounding the buried sewer pipe.
+                      the material surrounding the circular waveguide.
         mode_n: The `n` index of the mode of interest
         mode_m: The `m` index of the mode of interest.
         largeness_factor: An `int` with a multiplication factor used to turn
@@ -96,9 +96,9 @@ def calc_mode_refr_index(permittivity: complex, mode: str) -> complex:
 
     Args:
         permittivity: A `complex` value of the relative permittivity of
-                      the material surrounding the buried sewer pipe.
+                      the material surrounding the circular waveguide.
         mode: A `str` specifying what type of mode is propagating along the
-              pipe. Valid values are TE, TM, HE, or EH.
+              waveguide. Valid values are TE, TM, HE, or EH.
 
     Returns:
         A `complex` number with the mode-specific refractive index.
@@ -138,7 +138,7 @@ def calc_attenuation_constant(freq: float, wvg_diameter: float,
                               permittivity: complex,
                               mode: str, mode_n: int, mode_m: int,
                               largeness_factor: int = 10) -> float:
-    """Calculate attenuation constant of large circular waveguide
+    """Calculate attenuation constant of electrically large circular waveguide
 
     This function calculates the attenuation constant for a particular mode
     in an electrically large circular waveguide. It uses other functions
@@ -152,12 +152,12 @@ def calc_attenuation_constant(freq: float, wvg_diameter: float,
     Args:
         freq: A `float` with the frequency at which to perform the check.
               Units are GHz.
-        wvg_diameter: A `float` with the dimension of the waveguide which
+        wvg_diameter: A `float` with the diameter of the waveguide which
                       is being checked. Units are metres.
         permittivity: A `complex` value of the relative permittivity of
-                      the material surrounding the buried sewer pipe.
+                      the material surrounding the circular waveguide.
         mode: A `str` specifying what type of mode is propagating along the
-              pipe. Valid values are TE, TM, HE, or EH.
+              waveguide. Valid values are TE, TM, HE, or EH.
         mode_n: The `n` index of the mode of interest
         mode_m: The `m` index of the mode of interest.
         largeness_factor: An `int` with a multiplication factor used to turn
@@ -185,7 +185,7 @@ def calc_attenuation_constant(freq: float, wvg_diameter: float,
 
     # ! The `jn_zeros` function returns a list of length `mode_m`, but we are
     # ! only interested in the mth zero, i.e. index mode_m-1
-    bessel_root = scipy.special.jn_zeros(mode_n-1, mode_m)[mode_m-1]
+    bessel_root = scipy.special.jn_zeros(mode_n - 1, mode_m)[mode_m - 1]
 
     alpha_1 = np.float_power(bessel_root / (2 * np.pi), 2)
 
@@ -215,12 +215,12 @@ def calc_phase_constant(freq: float, wvg_diameter: float,
     Args:
         freq: A `float` with the frequency at which to perform the check.
               Units are GHz.
-        wvg_diameter: A `float` with the dimension of the waveguide which
+        wvg_diameter: A `float` with the diameter of the waveguide which
                       is being checked. Units are metres.
         permittivity: A `complex` value of the relative permittivity of
-                      the material surrounding the buried sewer pipe.
+                      the material surrounding the circular waveguide.
         mode: A `str` specifying what type of mode is propagating along the
-              pipe. Valid values are TE, TM, HE, or EH.
+              waveguide. Valid values are TE, TM, HE, or EH.
         mode_n: The `n` index of the mode of interest
         mode_m: The `m` index of the mode of interest.
         largeness_factor: An `int` with a multiplication factor used to turn
@@ -247,7 +247,7 @@ def calc_phase_constant(freq: float, wvg_diameter: float,
 
     # ! The `jn_zeros` function returns a list of length `mode_m`, but we are
     # ! only interested in the mth zero, i.e. index mode_m-1
-    bessel_root = scipy.special.jn_zeros(mode_n-1, mode_m)[mode_m-1]
+    bessel_root = scipy.special.jn_zeros(mode_n - 1, mode_m)[mode_m - 1]
 
     beta_0 = 2 * np.pi / wavelength
 

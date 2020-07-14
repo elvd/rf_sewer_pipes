@@ -18,6 +18,9 @@ Added 26.VI.2020:
     - Fresnel zone calculator
     - Maximum antenna separation for a given first Fresnel zone radius
     - Propagation constant for a plane wave through homogeneous medium
+
+Added 14.VII.2020:
+    - Frequency-dependent metal resistance
 """
 
 import warnings
@@ -541,6 +544,45 @@ def skin_depth(freq: float, conductivity: float,
               with_traceback(error.__traceback__)
 
     return delta
+
+
+def metal_resistance(freq: float, conductivity: float,
+                     real_permeability: float) -> float:
+    """Calculates frequency-dependent metal resistance
+
+    Uses the formula in the Waveguide Handbook by Marcuvitz to calculate the
+    frequency-dependent resistance of a given metal.
+
+    Args:
+        freq: A `float` with the frequency at which we want to know the skin
+              depth. Units are GHz.
+        conductivity: A `float` with the value for the metal's conductivity.
+                      Units are S/m.
+        real_permeability: A `float` with the relative permeability of the
+                           metal. Unitless.
+
+    Returns:
+        A single `float` with the frequency-dependent metal resistance in Ohms.
+
+    Raises:
+        ZeroDivisionError: If the `freq` is specified as zero.
+
+    """
+
+    metal_skin_depth = skin_depth(freq, conductivity, real_permeability)
+
+    freq *= 1e9
+
+    try:
+        wavelength = speed_of_light / freq
+    except ZeroDivisionError as error:
+        raise ZeroDivisionError('Frequency must be > 0'). \
+              with_traceback(error.__traceback__)
+
+    metal_resistance = np.pi * np.sqrt(mu_0 / epsilon_0)
+    metal_resistance *= (metal_skin_depth / wavelength)
+
+    return metal_resistance
 
 
 def plane_wave_prop_const(freq: float, real_permittivity: float,
