@@ -16,7 +16,7 @@ np.seterr(divide='raise')
 def free_space_path_loss(freq: float, distance: float) -> float:
     """Calculate free-space path loss
 
-    Standard formula, also known as (one of) the Friis formula.
+    Standard formula, also known as (one of) the Friis formula(e).
 
     Args:
         freq: A `float` with the frequency of the transmitter.

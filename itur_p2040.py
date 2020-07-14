@@ -231,6 +231,7 @@ def dielectric_wvg_loss(freq: float, width: float, height: float,
         raise RuntimeError('Check values and units of input parameters'). \
               with_traceback(error.__traceback__)
 
+    # ! The Recommendation uses `e_real - j * e_imag` notation
     permittivity = complex(real_permittivity, -imaginary_permittivity)
 
     real_denum_1 = np.float_power(width, 3) * np.sqrt(permittivity - 1)
@@ -702,6 +703,10 @@ def single_layer_slab_coefficients(freq: float, thickness: float,
     coefficients for an EM wave travelling through air and encountering a slab
     of homogeneous material. The slab is of finite thickness, with air on
     either side of it.
+
+    Note:
+        1. The imaginary part of the `permittivity` parameter should have a
+        negative sign.
 
     Args:
         freq: A `float` with the frequency of interes. Units are GHz.
