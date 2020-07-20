@@ -26,7 +26,7 @@ def check_electrical_size(freq: float, wvg_diameter: float,
                           permittivity: complex,
                           mode_n: int, mode_m: int,
                           largeness_factor: int = 10) -> float:
-    """Electrical size check for circular waveguide
+    """Electrical size check for a circular waveguide
 
     Uses the formula in Marcatilli and Schmeltzer's 1964 paper to determine
     if a given circular waveguide is electrically large at a given frequency
@@ -138,13 +138,13 @@ def calc_attenuation_constant(freq: float, wvg_diameter: float,
                               permittivity: complex,
                               mode: str, mode_n: int, mode_m: int,
                               largeness_factor: int = 10) -> float:
-    """Calculate attenuation constant of electrically large circular waveguide
+    """Calculate the attenuation constant of a lossy circular waveguide
 
     This function calculates the attenuation constant for a particular mode
     in an electrically large circular waveguide. It uses other functions
     from this module internally.
 
-    Note:
+    Notes:
         1. This function does not do any error handling, this is done in the
         other functions in the module. In case of an error there this function
         will simply re-raise the error.
@@ -201,13 +201,13 @@ def calc_phase_constant(freq: float, wvg_diameter: float,
                         permittivity: complex,
                         mode: str, mode_n: int, mode_m: int,
                         largeness_factor: int = 10) -> float:
-    """Calculate phase constant of large circular waveguide
+    """Calculate the phase constant of a lossy circular waveguide
 
     This function calculates the phase constant for a particular mode
     in an electrically large circular waveguide. It uses other functions
     from this module internally.
 
-    Note:
+    Notes:
         1. This function does not do any error handling, this is done in the
         other functions in the module. In case of an error there this function
         will simply re-raise the error.

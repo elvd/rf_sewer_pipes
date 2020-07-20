@@ -109,7 +109,8 @@ def complex_permittivity_to_tan_delta(real_permittivity: float,
         The value for the loss tangent.
 
     Raises:
-        ZeroDivisionError: If you specify 0 Hz, i.e. DC, for the frequency
+        ZeroDivisionError: If you specify 0 Hz, i.e. DC, for the real part
+                           of the permittivity.
     """
 
     try:

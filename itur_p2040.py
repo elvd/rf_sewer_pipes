@@ -646,9 +646,6 @@ def material_attenuation_rate(freq: float, real_permittivity: float,
     Notes:
         1. These are approximate/practical formulas and should not be used
         for precise calculations.
-        2. These are only valid in two cases, a dielectric and good conductor.
-        The distinction is based on the value of the loss tangent, either
-        < 0.5 for a dielectric or > 15 for a good conductor.
 
     Args:
         freq: A `float` with the frequency at which to calculate the
@@ -664,8 +661,6 @@ def material_attenuation_rate(freq: float, real_permittivity: float,
 
     Raises:
         ZeroDivisionError: In case the frequency is given as zero.
-        RuntimeError: In case the material cannot be categorised as
-                      a dielectric or a good conductor.
     """
 
     freq *= 1e9
@@ -679,14 +674,12 @@ def material_attenuation_rate(freq: float, real_permittivity: float,
     wave_number = 2 * np.pi / wavelength
 
     foo = 1 / (wave_number * np.sqrt(real_permittivity))
-    bar = 2 / loss_tangent
 
-    if loss_tangent > 15:
-        delta_distance = foo * np.sqrt(bar)
-    elif loss_tangent < 0.5:
-        delta_distance = foo * bar
-    else:
-        raise RuntimeError('Material properties outside validity region')
+    cos_delta = np.cos(np.arctan(loss_tangent))
+    bar = (2 * cos_delta) / (1 - cos_delta)
+    bar = np.sqrt(bar)
+
+    delta_distance = foo * bar
 
     attenuation = 8.686 / delta_distance
 
@@ -720,7 +713,8 @@ def single_layer_slab_coefficients(freq: float, thickness: float,
 
     Returns:
         A `Tuple` with two `complex` values, representing the reflection
-        and transmission coefficients, respectively.
+        and transmission coefficients, respectively. These are voltage rather
+        than power coefficients, so require `20*log10` to turn into dB.
 
     Raises:
         ZeroDivisionError: In case the frequency is given as zero.
@@ -742,20 +736,22 @@ def single_layer_slab_coefficients(freq: float, thickness: float,
         refl_coeff_prime = np.cos(angle) - common_root
         refl_coeff_prime /= (np.cos(angle) + common_root)
     elif 'tm' == polarisation.lower():
-        refl_coeff_prime = permittivity * np.cos(angle) - common_root
-        refl_coeff_prime /= (permittivity * np.cos(angle) + common_root)
+        refl_coeff_prime = (permittivity * np.cos(angle)) - common_root
+        refl_coeff_prime /= ((permittivity * np.cos(angle)) + common_root)
     else:
         raise RuntimeError('Polarisation must be TE or TM')
 
     q_coeff = ((2 * np.pi * thickness) / wavelength) * common_root
 
-    q_coeff_exp_2 = np.exp(-1j * 2 * q_coeff)
     q_coeff_exp_1 = np.exp(-1j * q_coeff)
+    q_coeff_exp_2 = np.exp(-1j * 2 * q_coeff)
+
+    common_denum = (1 - (np.float_power(refl_coeff_prime, 2) * q_coeff_exp_2))
 
     refl_coeff = refl_coeff_prime * (1 - q_coeff_exp_2)
-    refl_coeff /= (1 - np.float_power(refl_coeff_prime, 2) * q_coeff_exp_2)
+    refl_coeff /= common_denum
 
     tx_coeff = (1 - np.float_power(refl_coeff_prime, 2)) * q_coeff_exp_1
-    tx_coeff /= (1 - np.float_power(refl_coeff_prime, 2) * q_coeff_exp_2)
+    tx_coeff /= common_denum
 
     return (refl_coeff, tx_coeff)

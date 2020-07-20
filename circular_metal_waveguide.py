@@ -13,7 +13,7 @@ from aux_funcs import metal_resistance
 
 def calc_cutoff_frequency(wvg_diameter: float, mode: str,
                           mode_n: int, mode_m: int) -> float:
-    """Calculate cutoff frequency
+    """Calculate the cutoff frequency of a circular waveguide
 
     This function calculates the cutoff frequency, i.e. the lowest frequency
     for which a particular mode will propagate, in a specified waveguide. The
@@ -34,6 +34,7 @@ def calc_cutoff_frequency(wvg_diameter: float, mode: str,
         ValueError: In case of a mode different than TE or TM
         ZeroDivisionError: In case the waveguide diameter is given as zero
     """
+
     if 'te' == mode.lower():
         bessel_root = scipy.special.jnp_zeros(mode_n, mode_m)[mode_m - 1]
     elif 'tm' == mode.lower():
@@ -56,7 +57,7 @@ def calc_cutoff_frequency(wvg_diameter: float, mode: str,
 
 def calc_guide_wavelength(freq: float, wvg_diameter: float, mode: str,
                           mode_n: int, mode_m: int) -> float:
-    """Calculate guide wavelength
+    """Calculate the guide wavelength for a given mode
 
     This function calculates the guide wavelength for a particular propagating
     mode at a specified frequency in a specified circular waveguide.
@@ -77,6 +78,7 @@ def calc_guide_wavelength(freq: float, wvg_diameter: float, mode: str,
     Raises:
         ZeroDivisionError: In case the frequency is given as zero
     """
+
     freq *= 1e9
 
     try:
@@ -103,7 +105,7 @@ def calc_attenuation_constant(freq: float, wvg_diameter: float,
                               mode: str, mode_n: int, mode_m: int,
                               metal_conductivity: float,
                               metal_permeability: float):
-    """Calculate attenuation constant
+    """Calculate the attenuation constant of a circular waveguide
 
     This function calculates the attenuation constant of a particular mode
     at a particular frequency in a particular circular waveguide, which is
@@ -172,7 +174,7 @@ def calc_attenuation_constant(freq: float, wvg_diameter: float,
 
 def calc_phase_constant(freq: float, wvg_diameter: float, mode: str,
                         mode_n: int, mode_m: int) -> float:
-    """Calculate phase constant
+    """Calculate the phase constant of a circular waveguide
 
     This function calculates the phase constant of a particular mode
     at a particular frequency in a particular circular waveguide.
