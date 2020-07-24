@@ -94,11 +94,11 @@ def calc_attenuation_constant(freq: float, permittivity_width: complex,
         permittivity_height: A `complex` value of the relative permittivity of
                              the material along the side walls of the
                              waveguide.
-        wvg_height: A `float` with the height of the waveguide which is being
-                    checked. Units are metres.
         wvg_width: A `float` with the width of the waveguide which is being
                    checked. Units are metres.
-        mode_n: The `n` index of the mode of interest
+        wvg_height: A `float` with the height of the waveguide which is being
+                    checked. Units are metres.
+        mode_n: The `n` index of the mode of interest.
         mode_m: The `m` index of the mode of interest.
         polarisation: A `str` specifying the polarisation of the mode of
                       interest. Valid values are `horizontal` or `vertical`.
@@ -213,32 +213,161 @@ def calc_phase_constant(freq: float, wvg_width: float, wvg_height: float,
     return beta
 
 
-def calc_phase_constant_alt(freq: float, wvg_width: float, wvg_height: float,
-                            mode_n: int, mode_m: int) -> float:
-    """
-        This is an alternative implementation of `calc_phase_constant`. Once
-        they have been demonstrated to yield the same results, this function
-        will be removed.
+def mode_phase(mode_idx: int) -> float:
+    """Returns mode phase constant
+
+    This function returns the phase constant depending on the mode number.
+    Currently this implementation is for vertical polarisation only.
+
+    Args:
+        mode_idx: An `int` with the mode number
+
+    Returns:
+        Either 0 or pi/2 depending on the mode number
+
+    Raises:
+        Nothing
     """
 
-    freq *= 1e9
+    if (mode_idx & 1):
+        return (np.pi / 2)
+    else:
+        return 0
+
+
+def calc_mode_weight(wvg_width: float, wvg_height: float,
+                     tx_x: float, tx_y: float,
+                     rx_x: float, rx_y: float,
+                     mode_n: int, mode_m: int) -> float:
+    """Calculates the mode eigenfunction
+
+    This function returns the mode eigenfunction, which reflects the influence
+    of both the Tx and Rx antenna positions on power distribution within the
+    waveguide.
+
+    Notes:
+        1. The origin of the x-y coordinate system is the geometric centre of
+        rectangular cross-section of the waveguide.
+
+    Args:
+        wvg_width: A `float` with the width of the waveguide. Units are metres.
+        wvg_height: A `float` with the height of the waveguide. Units are
+                    metres.
+        tx_x: A `float` with the x coordinate of the transmitter. Units are
+              metres.
+        tx_y: A `float` with the y coordinate of the transmitter. Units are
+              metres.
+        rx_x: A `float` with the x coordinate of the receiver. Units are
+              metres.
+        rx_y: A `float` with the y coordinate of the receiver. Units are
+              metres.
+        mode_n: An `int` with the mode index along the width of the waveguide.
+        mode_m: An `int` with the mode index along the height of the waveguide.
+
+    Returns:
+        The eigenfunction value as a `float` number.
+
+    Raises:
+        ZeroDivisionError: In case one or both of the waveguide dimensions are
+                           given as zero.
+    """
 
     try:
-        wavelength = speed_of_light / freq
+        sin_width = mode_n * np.pi / wvg_width
+        sin_height = mode_m * np.pi / wvg_height
     except ZeroDivisionError as error:
-        raise ZeroDivisionError('Frequency must be > 0'). \
+        raise ZeroDivisionError('Waveguide dimensions must be > 0'). \
               with_traceback(error.__traceback__)
 
-    beta_0 = 2 * np.pi / wavelength
-    beta_0 = np.float_power(beta_0, 2)
+    alpha_nm = np.sin(sin_width * rx_x + mode_phase(mode_n))
+    alpha_nm *= np.sin(sin_width * tx_x + mode_phase(mode_n))
+    alpha_nm *= np.sin(sin_height * rx_y + mode_phase(mode_m))
+    alpha_nm *= np.sin(sin_height * tx_y + mode_phase(mode_m))
 
-    beta_1 = (mode_n * np.pi) / (wvg_width)
-    beta_1 = np.float_power(beta_1, 2)
+    return alpha_nm
 
-    beta_2 = (mode_m * np.pi) / (wvg_height)
-    beta_2 = np.float_power(beta_2, 2)
 
-    beta = beta_0 - beta_1 - beta_2
-    beta = np.sqrt(beta)
+def calc_electric_field(freq: float, distance: float,
+                        er_width: complex, er_height: complex,
+                        wvg_width: float, wvg_height: float,
+                        tx_x: float, tx_y: float, rx_x: float, rx_y: float,
+                        mode_n_max: int, mode_m_max: int) -> float:
+    """Electric field amplitude at a location inside a waveguide
 
-    return beta
+    This function calculates the electric field amplitude at a given position
+    inside the waveguide, taking into account contributions from all specified
+    propagating modes.
+
+    Notes:
+        1. Currently this only considers vertically polarised fields, i.e. the
+        electric field is parallel to the height of the waveguide.
+
+    Args:
+        freq: A `float` with the frequency at which to perform the check.
+              Units are GHz.
+        distance: A `float` with how far along the waveguide the receiver is.
+                  Units are metres.
+        er_width: A `complex` value of the relative permittivity of
+                  the material along the top and bottom walls of the waveguide.
+        er_height: A `complex` value of the relative permittivity of
+                   the material along the side walls of the waveguide.
+        wvg_width: A `float` with the width of the waveguide which is being
+                   checked. Units are metres.
+        wvg_height: A `float` with the height of the waveguide which is being
+                    checked. Units are metres.
+        tx_x: A `float` with the x coordinate of the transmitter. Units are
+              metres.
+        tx_y: A `float` with the y coordinate of the transmitter. Units are
+              metres.
+        rx_x: A `float` with the x coordinate of the receiver. Units are
+              metres.
+        rx_y: A `float` with the y coordinate of the receiver. Units are
+              metres.
+        mode_n_max: An `int` with the maximum number of modes to consider
+                    along the width of the waveguide.
+        mode_m_max: An `int` with the maximum number of modes to consider
+                    along the height of the waveguide.
+
+    Returns:
+        The electric field amplitude in V/m2 as a `float` number.
+
+    Raises:
+        ZeroDivisionError: In case either or both of the waveguide dimensions
+                           are given as zero.
+    """
+
+    common_multiplier = -1j * 2 * np.pi
+    try:
+        common_multiplier /= ((wvg_height / 2) * (wvg_width / 2))
+    except ZeroDivisionError as error:
+        raise ZeroDivisionError('Waveguide dimensions must be > 0'). \
+              with_traceback(error.__traceback__)
+
+    field = 0.0
+
+    for mode_n in range(1, mode_n_max + 1):
+        for mode_m in range(1, mode_m_max + 1):
+            mode_weight = calc_mode_weight(
+                wvg_width, wvg_height, tx_x, tx_y, rx_x, rx_y, mode_n, mode_m
+            )
+
+            mode_alpha = calc_attenuation_constant(
+                freq, er_width, er_height, wvg_width, wvg_height,
+                mode_n, mode_m
+            )
+
+            mode_beta = calc_phase_constant(
+                freq, wvg_width, wvg_height, mode_n, mode_m
+            )
+
+            mode_gamma = complex(mode_alpha, mode_beta)
+
+            mode_field = np.exp(-(mode_gamma * distance))
+            mode_field /= mode_beta
+            mode_field *= mode_weight
+
+            field += mode_field
+
+    field *= common_multiplier
+
+    return field

@@ -4,10 +4,13 @@ ITU-R Recommendation P.525 (08/2019) Calculation of Free-Space Attenuation
 is a short Recommendation which specifies how to calculate free-space path
 loss. In addition it contains several formulas for conversion between
 electric field strength and power flux at a given distance from a transmitter.
+
+Some extra formulas are included here that fit thematically, such as converting
+from W/m2 to V/m
 """
 
 import numpy as np
-from scipy.constants import speed_of_light
+from scipy.constants import speed_of_light, epsilon_0
 
 
 np.seterr(divide='raise')
@@ -113,3 +116,25 @@ def power_flux_at_distance(power: float, distance: float,
     power_flux = field_strength - 145.8
 
     return power_flux
+
+
+def intensity_to_field_strength(intensity: float) -> float:
+    """Calculate E-field strength
+
+    A quick and simple conversion between EM field intensity in W/m2
+    to electric field strength in V/m.
+
+    Args:
+        intensity: A `float` with the EM field intensity in W/m2
+
+    Returns:
+        The electric field strength in V/m as a `float` number.
+
+    Raises:
+        Nothing
+    """
+
+    field_strength = (2 * intensity) / (speed_of_light * epsilon_0)
+    field_strength = np.sqrt(field_strength)
+
+    return field_strength
