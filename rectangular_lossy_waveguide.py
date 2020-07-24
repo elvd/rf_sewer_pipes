@@ -9,11 +9,13 @@ The formulas are based on several papers dealing with mining and railway
 tunnels. Unlike ITU-R P.2040, these are generalised for higher-order modes.
 """
 
+import warnings
 import numpy as np
 from scipy.constants import speed_of_light
+from aux_funcs import db_to_mag, mag_to_db
 
 
-np.seterr(divide='raise')
+np.seterr(divide='raise', invalid='raise')
 
 
 def check_electrical_size(freq: float, wvg_dimension: float, mode_idx: int,
@@ -371,3 +373,76 @@ def calc_electric_field(freq: float, distance: float,
     field *= common_multiplier
 
     return field
+
+
+def antenna_insertion_loss(freq: float, wvg_width: float, wvg_height: float,
+                           antenna_gain_db: float, antenna_x: float,
+                           antenna_y: float) -> float:
+    """Calculates antenna inserion loss for a rectangular lossy waveguide
+
+    This function calculates the coupling loss between an antenna placed at a
+    specific location in a rectangular lossy waveguide, and the mode that has
+    been excited as a result.
+
+    Notes:
+        1. The formula is inaccurte when close to the waveguide walls.
+
+    Args:
+        freq: A `float` with he frequency at which to calculate the insertion
+              loss. Units are GHz.
+        wvg_width: A `float` with the width of the waveguide. Units are metres.
+        wvg_height: A `float` with the height of the waveguide. Units are
+                    metres.
+        antenna_gain_db: A `float` with the free-space gain of the antenna.
+                         Units are dB.
+        antenna_x: A `float` with the x coordinate of the antenna position,
+                   relative to the geometric centre of the waveguide
+                   cross-section. Units are metres.
+        antenna_y: A `float` with the y coordinate of the antenna position,
+                   relative to the geometric centre of the waveguide
+                   cross-section. Units are metres.
+    Returns:
+        The insertion loss in dB as a `float` number.
+
+    Raises:
+        RuntimeWarning: In case the antenna is placed close to either wall.
+        ZeroDivisionError: In case any relevant variable is given as zero.
+
+    """
+
+    if (antenna_x <= (wvg_width / 20)) or (antenna_y <= (wvg_height / 20)):
+        warnings.warn('Antenna too close to waveguide walls',
+                      category=RuntimeWarning)
+
+    freq *= 1e9
+
+    try:
+        wavelength = speed_of_light / freq
+    except ZeroDivisionError as error:
+        raise ZeroDivisionError('Frequency must be > 0'). \
+              with_traceback(error.__traceback__)
+
+    antenna_gain = db_to_mag(antenna_gain_db)
+
+    loss_1 = 2 * np.pi * wvg_width * wvg_height
+    loss_1 /= (antenna_gain * np.float_power(wavelength, 2))
+
+    try:
+        loss_cos_1 = np.cos(np.pi * antenna_x / wvg_width)
+        loss_cos_2 = np.cos(np.pi * antenna_y / wvg_height)
+    except ZeroDivisionError as error:
+        raise ZeroDivisionError('Waveguide dimensions must be > 0'). \
+              with_traceback(error.__traceback__)
+
+    loss_cos_1 = np.float_power(loss_cos_1, 2)
+    loss_cos_2 = np.float_power(loss_cos_2, 2)
+
+    try:
+        loss = loss_1 * (1 / loss_cos_1) * (1 / loss_cos_2)
+    except ZeroDivisionError as error:
+        raise ZeroDivisionError('Bad antenna position'). \
+              with_traceback(error.__traceback__)
+
+    loss = mag_to_db(loss)
+
+    return loss

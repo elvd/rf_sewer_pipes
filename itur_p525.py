@@ -6,7 +6,10 @@ loss. In addition it contains several formulas for conversion between
 electric field strength and power flux at a given distance from a transmitter.
 
 Some extra formulas are included here that fit thematically, such as converting
-from W/m2 to V/m
+from W/m2 to V/m and vice versa.
+
+Notes:
+    1. These are strictly only valid in the case of propagation in vacuum.
 """
 
 import numpy as np
@@ -118,23 +121,47 @@ def power_flux_at_distance(power: float, distance: float,
     return power_flux
 
 
-def intensity_to_field_strength(intensity: float) -> float:
-    """Calculate E-field strength
+def power_flux_to_field_strength(power: float) -> float:
+    """Calculate E-field strength from average power flux
 
-    A quick and simple conversion between EM field intensity in W/m2
+    A quick and simple conversion between EM field power flux in W/m2
     to electric field strength in V/m.
 
     Args:
-        intensity: A `float` with the EM field intensity in W/m2
+        power: A `float` with the EM field power in W/m2
 
     Returns:
-        The electric field strength in V/m as a `float` number.
+        The electric field strength in V/m as a `float` number. This is the
+        same as the magnitude of the electric field.
 
     Raises:
         Nothing
     """
 
-    field_strength = (2 * intensity) / (speed_of_light * epsilon_0)
+    field_strength = (2 * power) / (speed_of_light * epsilon_0)
     field_strength = np.sqrt(field_strength)
 
     return field_strength
+
+
+def field_strength_to_power_flux(field: float) -> float:
+    """Calculate average power from E-field amplitude
+
+    A quick and somple conversion between the amplitude of an electric field
+    in V/m to corresponding average power flux in W/m2. This essentially
+    implements the Poynting formula.
+
+    Args:
+        field: A `float` with the amplitude of the E-field. Units are V/m.
+
+    Returns:
+        The averaged power flux in W/m2 as a `float` number.
+
+    Raises:
+        Nothing
+    """
+
+    power = np.float_power(np.abs(field), 2)
+    power *= (0.5 * speed_of_light * epsilon_0)
+
+    return power
