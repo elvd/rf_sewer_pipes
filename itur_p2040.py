@@ -164,7 +164,8 @@ def dielectric_wvg_loss(freq: float, width: float, height: float,
     Notes:
         1. While the methodology allows for different dielectrics on left/right
         and top/bottom, this implementation assumes a single, homogenous one.
-        2. The additional losses for the square case are not implemented.
+        2. The additional losses for the square case are not implemented in
+        this function. Please see `rough_walls_loss` and `tilt_angle_loss`.
         3. The frequency range of validity for this model is 0.2 GHz to 12 GHz.
         4. The imaginary part of the complex relative permittivity has a
         negative sign applied internally in this function.
@@ -282,7 +283,7 @@ def rough_walls_loss(freq: float, width: float, height: float,
     Notes:
         There is no check for an electrically large waveguide, it is assumed
         this has been performed previously, by either calling
-        `check_electrical_size()` or by running `dielectric_wvg_loss()` first.
+        `check_electrical_size` or by running `dielectric_wvg_loss` first.
 
     Args:
         freq: A `float` with the frequency at which to calculate the loss.
@@ -356,7 +357,7 @@ def tilt_angle_loss(freq: float, tilt_angle: float,
     Notes:
         There is no check for an electrically large waveguide, it is assumed
         this has been performed previously, by either calling
-        `check_electrical_size()` or by running `dielectric_wvg_loss()` first.
+        `check_electrical_size` or by running `dielectric_wvg_loss` first.
 
     Args:
         freq: A `float` with the frequency at which to calculate the loss.
@@ -699,7 +700,7 @@ def single_layer_slab_coefficients(freq: float, thickness: float,
 
     Note:
         1. The imaginary part of the `permittivity` parameter should have a
-        negative sign.
+        negative sign pre-applied in advance.
 
     Args:
         freq: A `float` with the frequency of interes. Units are GHz.

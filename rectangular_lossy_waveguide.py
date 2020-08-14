@@ -82,9 +82,11 @@ def calc_attenuation_constant(freq: float, permittivity_width: complex,
 
     Notes:
         1. This function does not cuurently do any checks for electrical size.
-        2. `Vertical` polarisation refers to a Y-polarised mode, i.e. the `E`
+        2. The imaginary part of the permittivity needs to have a negative
+        sign pre-applied to it in advance.
+        3. `Vertical` polarisation refers to a Y-polarised mode, i.e. the `E`
         vector is oriented parallel to the side walls.
-        3. `Horizontal` polarisation refers to an X-polarised mode, i.e. the
+        4. `Horizontal` polarisation refers to an X-polarised mode, i.e. the
         `E` vector is oriented parallel to the top and bottom walls.
 
     Args:
@@ -303,6 +305,10 @@ def calc_electric_field(freq: float, distance: float,
     Notes:
         1. Currently this only considers vertically polarised fields, i.e. the
         electric field is parallel to the height of the waveguide.
+        2. The imaginary part of the permittivity needs to have a negative
+        sign pre-applied to it in advance.
+        3. See `calc_attenuation_constant`, `calc_phase_constant` and
+        `calc_mode_weight` for more information on the various parameters.
 
     Args:
         freq: A `float` with the frequency at which to perform the check.

@@ -33,6 +33,11 @@ def check_electrical_size(freq: float, wvg_diameter: float,
     and waveguide propagation mode combination. This is also dependent on the
     complex relative permittivity of the surrounding medium.
 
+    Notes:
+        1. The imaginary part of the complex permittivity should have a
+        negative sign pre-applied before being passed as an argument to this
+        function.
+
     Args:
         freq: A `float` with the frequency at which to perform the check.
               Units are GHz.
@@ -94,6 +99,11 @@ def calc_mode_refr_index(permittivity: complex, mode: str) -> complex:
     index, something necessary to determine the attenuation and phase
     constants of a particular mode in a lossy circular waveguide.
 
+    Notes:
+        1. The imaginary part of the complex permittivity should have a
+        negative sign pre-applied before being passed as an argument to this
+        function.
+
     Args:
         permittivity: A `complex` value of the relative permittivity of
                       the material surrounding the circular waveguide.
@@ -148,6 +158,9 @@ def calc_attenuation_constant(freq: float, wvg_diameter: float,
         1. This function does not do any error handling, this is done in the
         other functions in the module. In case of an error there this function
         will simply re-raise the error.
+        2. The imaginary part of the complex permittivity should have a
+        negative sign pre-applied before being passed as an argument to this
+        function.
 
     Args:
         freq: A `float` with the frequency at which to perform the check.
@@ -211,6 +224,9 @@ def calc_phase_constant(freq: float, wvg_diameter: float,
         1. This function does not do any error handling, this is done in the
         other functions in the module. In case of an error there this function
         will simply re-raise the error.
+        2. The imaginary part of the complex permittivity should have a
+        negative sign pre-applied before being passed as an argument to this
+        function.
 
     Args:
         freq: A `float` with the frequency at which to perform the check.

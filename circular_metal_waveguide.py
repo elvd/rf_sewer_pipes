@@ -23,7 +23,7 @@ def calc_cutoff_frequency(wvg_diameter: float, mode: str,
         wvg_diameter: A `float` with the diameter of the waveguide which
                       is being checked. Units are metres.
         mode: A `str` specifying what type of mode is propagating along the
-              waveguide. Valid values are TE or TM.
+              waveguide. Valid values are either TE or TM.
         mode_n: The `n` index of the mode of interest
         mode_m: The `m` index of the mode of interest.
 
@@ -68,7 +68,7 @@ def calc_guide_wavelength(freq: float, wvg_diameter: float, mode: str,
         wvg_diameter: A `float` with the diameter of the waveguide which
                       is being checked. Units are metres.
         mode: A `str` specifying what type of mode is propagating along the
-              waveguide. Valid values are TE or TM.
+              waveguide. Valid values are either TE or TM.
         mode_n: The `n` index of the mode of interest
         mode_m: The `m` index of the mode of interest.
 
@@ -118,7 +118,7 @@ def calc_attenuation_constant(freq: float, wvg_diameter: float,
         wvg_diameter: A `float` with the diameter of the waveguide which
                       is being checked. Units are metres.
         mode: A `str` specifying what type of mode is propagating along the
-              waveguide. Valid values are TE or TM.
+              waveguide. Valid values are either TE or TM.
         mode_n: The `n` index of the mode of interest.
         mode_m: The `m` index of the mode of interest.
         metal_conductivity: A `float` with the conductivity of the material
@@ -191,7 +191,7 @@ def calc_phase_constant(freq: float, wvg_diameter: float, mode: str,
         wvg_diameter: A `float` with the diameter of the waveguide which
                       is being checked. Units are metres.
         mode: A `str` specifying what type of mode is propagating along the
-              waveguide. Valid values are TE or TM.
+              waveguide. Valid values are either TE or TM.
         mode_n: The `n` index of the mode of interest.
         mode_m: The `m` index of the mode of interest.
 
