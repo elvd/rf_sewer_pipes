@@ -329,7 +329,6 @@ def hertzian_dipole_current(freq: float, power: float, length: float,
     Notes:
         1. Strictly speaking, this formula is valid for a time-harmonic current
         excitation. Other, stranger excitations require more maths.
-        2. The units for `wavelength` and `length` must be the same.
 
     Args:
         freq: A `float` with the frequency at which the dipole is radiating.
@@ -560,7 +559,8 @@ def far_field_distance(freq: float, antenna_dimension: float,
                             antenna. See Notes for further information
                             on units.
         antenna_type : A `str` with the type of antenna. Can be `monopole`,
-                       `dipole`, or `array`.
+                       `dipole`, or `array`. Any of these overrides the
+                       `antenna_dimension` variable.
 
     Returns:
         A single `float` with the minimum far field distance, with units in m.
